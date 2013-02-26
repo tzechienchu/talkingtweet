@@ -16,6 +16,7 @@ from Adafruit_MCP230xx import Adafruit_MCP230XX
 import smbus
 import Adafruit_CharLCDPlate
 
+
 import tweetkey
 
 pfolder = '/home/pi/talkingtweet/'
