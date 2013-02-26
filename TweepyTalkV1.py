@@ -16,10 +16,10 @@ from Adafruit_MCP230xx import Adafruit_MCP230XX
 import smbus
 import Adafruit_CharLCDPlate
 
-consumer_key = '9PGxxFJTdvSYZ4b8orblUQ'
-consumer_secret = 'qbgxpEsVycW7f8RMnq8HfJ41sVnTedkKdja429tH4'
-access_token = '1146965486-CaI4Khqo8ihl2FqrVuEqFYkcA6qkJCn4xK2RLtI'
-access_token_secret = 'QHhniZqnHdCGIt9ZzSgX2RUqxLb0M4Oq9EqRiSxI'
+consumer_key = '*'
+consumer_secret = '*'
+access_token = '*'
+access_token_secret = '*'
 
 class StdOutListener(StreamListener):
     """ A listener handles tweets are the received from the stream. 
