@@ -1,4 +1,4 @@
-﻿from tweepy.streaming import StreamListener
+from tweepy.streaming import StreamListener
 from tweepy import OAuthHandler
 from tweepy import Stream
 import tweepy
@@ -16,10 +16,13 @@ from Adafruit_MCP230xx import Adafruit_MCP230XX
 import smbus
 import Adafruit_CharLCDPlate
 
-consumer_key = '9PGxxFJTdvSYZ4b8orblUQ'
-consumer_secret = 'qbgxpEsVycW7f8RMnq8HfJ41sVnTedkKdja429tH4'
-access_token = '1146965486-CaI4Khqo8ihl2FqrVuEqFYkcA6qkJCn4xK2RLtI'
-access_token_secret = 'QHhniZqnHdCGIt9ZzSgX2RUqxLb0M4Oq9EqRiSxI'
+import tweetkey
+
+pfolder = '/home/pi/talkingtweet/'
+def getNowTime():
+    now = time.time()
+    nowlog = datetime.datetime.fromtimestamp(now).strftime('%Y-%m-%d %H:%M:%S')
+    return nowlog
 
 class StdOutListener(StreamListener):
     """ A listener handles tweets are the received from the stream. 
@@ -52,17 +55,15 @@ class StdOutListener(StreamListener):
             googlespeech.speakSpeechFromTextEN(speaktext)
             
         if tweetcommand == 'take:':
-            now = time.time()
-            nowlog = datetime.datetime.fromtimestamp(now).strftime('%Y-%m-%d %H:%M:%S')
+            nowlog = getNowTime()
             api = tweepy.API(auth)
-            pid = subprocess.call(["fswebcam","test.jpg"])
-            fn = '/home/pi/talkingtweet/test.jpg'
-            api.status_update_with_media(fn,status=nowlog)
+            fname = pfolder +'DCIM/'+nowlog+'.jpg'
+            pid = subprocess.call(["fswebcam",fname])
+            api.status_update_with_media(fname,status=nowlog)
             
         if tweetcommand == 'show:':
             showtext = tweetprocess.processUnicodeforEN(tweettext)
-            now = time.time()
-            nowlog = datetime.datetime.fromtimestamp(now).strftime('%Y-%m-%d %H:%M:%S')            
+            nowlog = getNowTime()
             lcd = Adafruit_CharLCDPlate.Adafruit_CharLCDPlate(busnum = 1)
             lcd.clear()
             message = nowlog + '\n'+showtext
@@ -76,6 +77,8 @@ class StdOutListener(StreamListener):
 
 if __name__ == '__main__':
 
+### StartUp Procedure
+    
     lcd = Adafruit_CharLCDPlate.Adafruit_CharLCDPlate(busnum = 1)
     lcd.clear()
     lcd.message("Aloha !\nRPiTalkingTweet")
@@ -84,17 +87,24 @@ if __name__ == '__main__':
     userlang = tdb.readUserState()
     print userlang
 
-##
-##    text = u"RT @nhk_news: 朱莉安 ABCD 不要看電視 http://t.co/wlINNXkl #nhk_news"
-##    speaktext = tweetprocess.removeHTTPURL(text)
-##    print speaktext
-##    speaktext = tweetprocess.processUnicodeforJPZH(speaktext)
-##    print speaktext
-##    googlespeech.speakSpeechFromTextZH(speaktext)
+### 1st Pircure sometimes will goes wrong
+    
+    pid = subprocess.call(["fswebcam","test.jpg"])
+
+### Test Speaker Output
+    
+    text = u"Talking Tweet Turn On"
+    speaktext = tweetprocess.removeHTTPURL(text)
+    print speaktext
+    speaktext = tweetprocess.processUnicodeforEN(speaktext)
+    print speaktext
+    googlespeech.speakSpeechFromTextEN(speaktext)
+
+### Setup Twitter Stream'''    
     
     l = StdOutListener()
-    auth = OAuthHandler(consumer_key, consumer_secret)
-    auth.set_access_token(access_token, access_token_secret)
+    auth = OAuthHandler(tweetkey.consumer_key, tweetkey.consumer_secret)
+    auth.set_access_token(tweetkey.access_token, tweetkey.access_token_secret)
     
     stream = Stream(auth, l)	
     stream.userstream()
