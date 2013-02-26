@@ -14,6 +14,8 @@ def getTweetCommand(text):
         chrtype = unicodedata.category(chr)
         if chrtype == 'Ll':
             rtext = rtext + chr
+        if chrtype == 'Lu':
+            rtext = rtext + chr            
         if chr == ':':
             return rtext+':'
 
@@ -28,6 +30,8 @@ def processUnicodeforEN(text):
             rtext = rtext + chr
         if chrtype == 'Lu' :
             rtext = rtext + chr
+        if chrtype == 'Nd' :
+            rtext = rtext + chr            
         if chrtype == 'Zs' :
             rtext = rtext + ' '
         if chr == ':' :
@@ -42,8 +46,11 @@ def processUnicodeforJPZH(text):
     rtext = u""
     for chr in text:
         chrtype = unicodedata.category(chr)
+        #print chrtype
         if chrtype == 'Lo' :
             rtext = rtext + chr
+        if chrtype == 'Nd' :
+            rtext = rtext + chr             
         if chrtype == 'Zs' :
             rtext = rtext + chr
             
