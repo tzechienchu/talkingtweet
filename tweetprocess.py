@@ -21,21 +21,24 @@ def getTweetCommand(text):
 
 def processUnicodeforEN(text):
     rtext = ""
+    noncmd = 0
     if isinstance(text,str):
         print text
         text = unicode(text,'unicode-escape')    
     for chr in text:
         chrtype = unicodedata.category(chr)
-        if chrtype == 'Ll' :
-            rtext = rtext + chr
-        if chrtype == 'Lu' :
-            rtext = rtext + chr
-        if chrtype == 'Nd' :
-            rtext = rtext + chr            
-        if chrtype == 'Zs' :
-            rtext = rtext + ' '
-        if chr == ':' :
-            rtext = rtext + ':'            
+        if (noncmd == 1):    
+            if chrtype == 'Ll' :
+                rtext = rtext + chr
+            if chrtype == 'Lu' :
+                rtext = rtext + chr
+            if chrtype == 'Nd' :
+                rtext = rtext + chr            
+            if chrtype == 'Zs' :
+                rtext = rtext + ' '
+        if chr == ':':
+            noncmd = 1
+            
             
     if "show:" in rtext:
         rtext = rtext.replace("show:","")

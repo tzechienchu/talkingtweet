@@ -31,45 +31,62 @@ class StdOutListener(StreamListener):
 
     """
     def on_status(self, status):
-        print (u"{text}".format(text=status.text))
+        '''print (u"{text}".format(text=status.text))
         print (u"{name}({screen})\n{created} via {src}\n".format(
                 name = status.author.name,screen=status.author.screen_name,
                 created=status.created_at,src=status.source))
-            
+        '''
+        
         userid = status.author.screen_name
 
         tweettext = tweetprocess.removeHTTPURL(status.text)
         tweetcommand = tweetprocess.getTweetCommand(tweettext)
+        tweetcommand = tweetcommand.lower()
         print tweetcommand
 
-        if tweetcommand == 'talkZH:':
-            speaktext = tweetprocess.processUnicodeforJPZH(tweettext)
-            print speaktext
-            googlespeech.speakSpeechFromTextZH(speaktext)
-        if tweetcommand == 'talkJP:':
-            speaktext = tweetprocess.processUnicodeforJPZH(tweettext)
-            print speaktext
-            googlespeech.speakSpeechFromTextJP(speaktext)
+        if tweetcommand == 'talkzh:':
+            try:
+                speaktext = tweetprocess.processUnicodeforJPZH(tweettext)
+                googlespeech.speakSpeechFromTextZH(speaktext)
+                print speaktext
+            except:
+                print "Error talkZH"
+                
+        if tweetcommand == 'talkjp:':
+            try:
+                speaktext = tweetprocess.processUnicodeforJPZH(tweettext)
+                googlespeech.speakSpeechFromTextJP(speaktext)
+                print speaktext
+            except:
+                print "Error talkjp"
         if tweetcommand == 'talk:':
-            speaktext = tweetprocess.processUnicodeforEN(tweettext)
-            print speaktext
-            googlespeech.speakSpeechFromTextEN(speaktext)
-            
+            try:
+                speaktext = tweetprocess.processUnicodeforEN(tweettext)
+                googlespeech.speakSpeechFromTextEN(speaktext)
+                print speaktext
+            except:
+                print "Error talk:"
+                
         if tweetcommand == 'take:':
-            nowlog = getNowTime()
-            api = tweepy.API(auth)
-            fname = pfolder +'DCIM/'+nowlog+'.jpg'
-            pid = subprocess.call(["fswebcam",fname])
-            api.status_update_with_media(fname,status=nowlog)
+            try:
+                nowlog = getNowTime()
+                api = tweepy.API(auth)
+                fname = pfolder +'DCIM/'+nowlog+'.jpg'
+                pid = subprocess.call(["fswebcam",fname])
+                api.status_update_with_media(fname,status=nowlog)
+            except:
+                print "Error take Picture"
             
         if tweetcommand == 'show:':
-            showtext = tweetprocess.processUnicodeforEN(tweettext)
-            nowlog = getNowTime()
-            lcd = Adafruit_CharLCDPlate.Adafruit_CharLCDPlate(busnum = 1)
-            lcd.clear()
-            message = nowlog + '\n'+showtext
-            lcd.message(message)
-    
+            try:
+                showtext = tweetprocess.processUnicodeforEN(tweettext)
+                nowlog = getNowTime()
+                lcd = Adafruit_CharLCDPlate.Adafruit_CharLCDPlate(busnum = 1)
+                lcd.clear()
+                message = nowlog + '\n'+showtext
+                lcd.message(message)
+            except:
+                print "Error Show Text on LCD"
             
         return True
 
