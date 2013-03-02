@@ -18,6 +18,7 @@ def getTweetCommand(text):
             rtext = rtext + chr            
         if chr == ':':
             return rtext+':'
+    return ''
 
 def processUnicodeforEN(text):
     rtext = ""

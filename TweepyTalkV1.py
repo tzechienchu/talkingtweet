@@ -20,6 +20,7 @@ import Adafruit_CharLCDPlate
 import tweetkey
 
 pfolder = '/home/pi/talkingtweet/'
+wstatus = 'Command Done OK'
 def getNowTime():
     now = time.time()
     nowlog = datetime.datetime.fromtimestamp(now).strftime('%Y-%m-%d %H:%M:%S')
@@ -41,43 +42,54 @@ class StdOutListener(StreamListener):
 
         tweettext = tweetprocess.removeHTTPURL(status.text)
         tweetcommand = tweetprocess.getTweetCommand(tweettext)
-        tweetcommand = tweetcommand.lower()
-        print tweetcommand
+        if (len(tweetcommand) > 2):
+            tweetcommand = tweetcommand.lower()
+            print tweetcommand
 
         if tweetcommand == 'talkzh:':
+            wstatus = 'TalkZH OK'
             try:
                 speaktext = tweetprocess.processUnicodeforJPZH(tweettext)
                 googlespeech.speakSpeechFromTextZH(speaktext)
                 print speaktext
             except:
-                print "Error talkZH"
+                wstatus = "Error talkZH"
+            api.update_status(status = wstatus)
                 
         if tweetcommand == 'talkjp:':
+            wstatus = 'TalkJP OK'
             try:
                 speaktext = tweetprocess.processUnicodeforJPZH(tweettext)
                 googlespeech.speakSpeechFromTextJP(speaktext)
                 print speaktext
             except:
-                print "Error talkjp"
+                wstatus = "Error talkjp"
+            api.update_status(status = wstatus)    
+                
         if tweetcommand == 'talk:':
+            wstatus = 'Talk OK'
             try:
                 speaktext = tweetprocess.processUnicodeforEN(tweettext)
                 googlespeech.speakSpeechFromTextEN(speaktext)
                 print speaktext
             except:
-                print "Error talk:"
+                wstatus = "Error talk:"
+            api.update_status(status = wstatus)
                 
         if tweetcommand == 'take:':
+            wstatus = 'Take OK'
             try:
                 nowlog = getNowTime()
-                api = tweepy.API(auth)
+                ##api = tweepy.API(auth)
                 fname = pfolder +'DCIM/'+nowlog+'.jpg'
                 pid = subprocess.call(["fswebcam",fname])
                 api.status_update_with_media(fname,status=nowlog)
             except:
-                print "Error take Picture"
+                wstatus = "Error take Picture"
+            api.update_status(status = wstatus)
             
         if tweetcommand == 'show:':
+            wstatus = 'Show OK'
             try:
                 showtext = tweetprocess.processUnicodeforEN(tweettext)
                 nowlog = getNowTime()
@@ -86,7 +98,8 @@ class StdOutListener(StreamListener):
                 message = nowlog + '\n'+showtext
                 lcd.message(message)
             except:
-                print "Error Show Text on LCD"
+                wstatus = "Error Show Text on LCD"
+            api.update_status(status = wstatus)    
             
         return True
 
@@ -124,6 +137,7 @@ if __name__ == '__main__':
     auth = OAuthHandler(tweetkey.consumer_key, tweetkey.consumer_secret)
     auth.set_access_token(tweetkey.access_token, tweetkey.access_token_secret)
     
+    api = tweepy.API(auth)
     stream = Stream(auth, l)	
     stream.userstream()
     
