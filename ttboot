@@ -1,0 +1,27 @@
+#!/bin/sh
+# /etc/init.d/ttboot
+
+USER=pi
+HOME=/home/pi
+
+export USER HOME
+eval cd /home/pi
+
+case "$1" in
+ start)
+   echo "Starting Twitter Talk"
+   #Insert your favoured settings for a VNC session
+   cd /home/pi
+   ./talkingtweet.sh
+   ;;
+ stop)
+   echo "Stopping Twitter Talk"
+   sudo killall python
+   ;;
+ *)
+   echo "Usage: /etc/init.d/ttboot {start|stop}"
+   exit 1
+   ;;
+esac
+
+exit 0
