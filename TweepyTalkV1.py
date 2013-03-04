@@ -47,7 +47,7 @@ class StdOutListener(StreamListener):
             print tweetcommand
 
         if tweetcommand == 'talkzh:':
-            wstatus = 'TalkZH OK'
+            wstatus = 'TalkZH OK' + getNowTime()
             try:
                 speaktext = tweetprocess.processUnicodeforJPZH(tweettext)
                 googlespeech.speakSpeechFromTextZH(speaktext)
@@ -57,7 +57,7 @@ class StdOutListener(StreamListener):
             api.update_status(status = wstatus)
                 
         if tweetcommand == 'talkjp:':
-            wstatus = 'TalkJP OK'
+            wstatus = 'TalkJP OK' + getNowTime()
             try:
                 speaktext = tweetprocess.processUnicodeforJPZH(tweettext)
                 googlespeech.speakSpeechFromTextJP(speaktext)
@@ -67,7 +67,7 @@ class StdOutListener(StreamListener):
             api.update_status(status = wstatus)    
                 
         if tweetcommand == 'talk:':
-            wstatus = 'Talk OK'
+            wstatus = 'Talk OK' + getNowTime()
             try:
                 speaktext = tweetprocess.processUnicodeforEN(tweettext)
                 googlespeech.speakSpeechFromTextEN(speaktext)
@@ -77,7 +77,7 @@ class StdOutListener(StreamListener):
             api.update_status(status = wstatus)
                 
         if tweetcommand == 'take:':
-            wstatus = 'Take OK'
+            wstatus = 'Take OK' + getNowTime()
             try:
                 nowlog = getNowTime()
                 ##api = tweepy.API(auth)
@@ -89,7 +89,7 @@ class StdOutListener(StreamListener):
             api.update_status(status = wstatus)
             
         if tweetcommand == 'show:':
-            wstatus = 'Show OK'
+            wstatus = 'Show OK' + getNowTime()
             try:
                 showtext = tweetprocess.processUnicodeforEN(tweettext)
                 nowlog = getNowTime()
