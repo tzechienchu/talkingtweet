@@ -19,13 +19,28 @@ import Adafruit_CharLCDPlate
 
 import tweetkey
 
+import scheduler
+
 pfolder = '/home/pi/talkingtweet/'
 wstatus = 'Command Done OK'
+timerevent = scheduler.Scheduler()
+
 def getNowTime():
     now = time.time()
     nowlog = datetime.datetime.fromtimestamp(now).strftime('%Y-%m-%d %H:%M:%S')
     return nowlog
 
+def tweetStatus(msg):
+    wstatus = msg+' '+ getNowTime()
+    try:
+        api.update_status(status = wstatus)
+    except:
+        pass
+
+def hourlyStatusUpdate():
+    print 'System Tweet'
+    tweetStatus('take:by myself')
+    
 class StdOutListener(StreamListener):
     """ A listener handles tweets are the received from the stream. 
     This is a basic listener that just prints received tweets to stdout.
@@ -47,37 +62,37 @@ class StdOutListener(StreamListener):
             print tweetcommand
 
         if tweetcommand == 'talkzh:':
-            wstatus = 'TalkZH OK' + getNowTime()
+            wstatus = 'TalkZH OK'
             try:
                 speaktext = tweetprocess.processUnicodeforJPZH(tweettext)
                 googlespeech.speakSpeechFromTextZH(speaktext)
                 print speaktext
             except:
                 wstatus = "Error talkZH"
-            api.update_status(status = wstatus)
+            tweetStatus(wstatus)
                 
         if tweetcommand == 'talkjp:':
-            wstatus = 'TalkJP OK' + getNowTime()
+            wstatus = 'TalkJP OK'
             try:
                 speaktext = tweetprocess.processUnicodeforJPZH(tweettext)
                 googlespeech.speakSpeechFromTextJP(speaktext)
                 print speaktext
             except:
                 wstatus = "Error talkjp"
-            api.update_status(status = wstatus)    
+            tweetStatus(wstatus)  
                 
         if tweetcommand == 'talk:':
-            wstatus = 'Talk OK' + getNowTime()
+            wstatus = 'Talk OK'
             try:
                 speaktext = tweetprocess.processUnicodeforEN(tweettext)
                 googlespeech.speakSpeechFromTextEN(speaktext)
                 print speaktext
             except:
                 wstatus = "Error talk:"
-            api.update_status(status = wstatus)
+            tweetStatus(wstatus)
                 
         if tweetcommand == 'take:':
-            wstatus = 'Take OK' + getNowTime()
+            wstatus = 'Take OK'
             try:
                 nowlog = getNowTime()
                 ##api = tweepy.API(auth)
@@ -86,21 +101,32 @@ class StdOutListener(StreamListener):
                 api.status_update_with_media(fname,status=nowlog)
             except:
                 wstatus = "Error take Picture"
-            api.update_status(status = wstatus)
+            tweetStatus(wstatus)
             
         if tweetcommand == 'show:':
-            wstatus = 'Show OK' + getNowTime()
+            wstatus = 'Show OK'
             try:
                 showtext = tweetprocess.processUnicodeforEN(tweettext)
                 nowlog = getNowTime()
                 lcd = Adafruit_CharLCDPlate.Adafruit_CharLCDPlate(busnum = 1)
+                lcd.backlight(lcd.ON)
                 lcd.clear()
                 message = nowlog + '\n'+showtext
                 lcd.message(message)
             except:
                 wstatus = "Error Show Text on LCD"
-            api.update_status(status = wstatus)    
+            tweetStatus(wstatus)   
+
+        if tweetcommand == 'showoff:':
+            lcd = Adafruit_CharLCDPlate.Adafruit_CharLCDPlate(busnum = 1)
+            lcd.backlight(lcd.OFF)
             
+        if tweetcommand == 'showon:':
+            lcd = Adafruit_CharLCDPlate.Adafruit_CharLCDPlate(busnum = 1)
+            lcd.backlight(lcd.ON)
+            lcd.clear()
+            lcd.message("Aloha !\nRPiTalkingTweet")
+ 
         return True
 
     def on_error(self, status):
@@ -130,7 +156,12 @@ if __name__ == '__main__':
     speaktext = tweetprocess.processUnicodeforEN(speaktext)
     print speaktext
     googlespeech.speakSpeechFromTextEN(speaktext)
-
+    
+### Setup Timer Event
+    timerevent.AddTask( hourlyStatusUpdate,3600,15)
+    print timerevent
+    timerevent.StartAllTasks()
+    
 ### Setup Twitter Stream'''    
     
     l = StdOutListener()
@@ -140,4 +171,4 @@ if __name__ == '__main__':
     api = tweepy.API(auth)
     stream = Stream(auth, l)	
     stream.userstream()
-    
+
