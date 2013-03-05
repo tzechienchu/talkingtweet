@@ -69,7 +69,7 @@ class StdOutListener(StreamListener):
                 print speaktext
             except:
                 wstatus = "Error talkZH"
-            tweetStatus(wstatus)
+                tweetStatus(wstatus)
                 
         if tweetcommand == 'talkjp:':
             wstatus = 'TalkJP OK'
@@ -79,7 +79,7 @@ class StdOutListener(StreamListener):
                 print speaktext
             except:
                 wstatus = "Error talkjp"
-            tweetStatus(wstatus)  
+                tweetStatus(wstatus)  
                 
         if tweetcommand == 'talk:':
             wstatus = 'Talk OK'
@@ -89,7 +89,7 @@ class StdOutListener(StreamListener):
                 print speaktext
             except:
                 wstatus = "Error talk:"
-            tweetStatus(wstatus)
+                tweetStatus(wstatus)
                 
         if tweetcommand == 'take:':
             wstatus = 'Take OK'
@@ -101,7 +101,7 @@ class StdOutListener(StreamListener):
                 api.status_update_with_media(fname,status=nowlog)
             except:
                 wstatus = "Error take Picture"
-            tweetStatus(wstatus)
+                tweetStatus(wstatus)
             
         if tweetcommand == 'show:':
             wstatus = 'Show OK'
@@ -115,7 +115,7 @@ class StdOutListener(StreamListener):
                 lcd.message(message)
             except:
                 wstatus = "Error Show Text on LCD"
-            tweetStatus(wstatus)   
+                tweetStatus(wstatus)   
 
         if tweetcommand == 'showoff:':
             lcd = Adafruit_CharLCDPlate.Adafruit_CharLCDPlate(busnum = 1)
