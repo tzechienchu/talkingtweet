@@ -22,26 +22,59 @@ mid = '<OFFICE>'
 pfolder = '/home/pi/talkingtweet/'
 wstatus = 'Command Done OK'
 timerevent = scheduler.Scheduler()
+wdt = 0
 
+def incWDT():
+    global wdt
+    wdt += 1
+    
+def decWDT():
+    global wdt
+    if wdt > 0:
+        wdt -= 1
+        
+def checkWDT(maxv):
+    global wdt
+    if wdt >= maxv:
+        return 1
+    else:
+        return 0
+    
+def printWDT():
+    global wdt
+    print wdt
+    
 def getNowTime():
     now = time.time()
     nowlog = datetime.datetime.fromtimestamp(now).strftime('%Y-%m-%d %H:%M:%S')
     return nowlog
 
 def tweetStatus(msg):
-    wstatus = mid+' '+ msg+' '+ getNowTime()
+    wstatus = msg+' '+ getNowTime() +' in ' +mid
     try:
         api.update_status(status = wstatus)
     except:
         pass
 
+def minLCDUpdate():
+    nowlog = getNowTime()
+    lcd = Adafruit_CharLCDPlate.Adafruit_CharLCDPlate(busnum = 1)
+    lcd.backlight(lcd.ON)
+    lcd.clear()
+    message = nowlog + '\nRPiTalkingTweet'
+    lcd.message(message)
+    printWDT()
+    if checkWDT(3) == 1:
+        reboot()      
+    
 def hourlyStatusUpdate():
     print 'System Tweet'
-    tweetStatus('take:by myself')
+    incWDT()
+    tweetStatus('take: by myself')
 
 def reboot():
     print 'Reboot'
-    pid = subprocess.call(["sudo reboot"])
+    pid = subprocess.call(["sudo", "reboot"])
     
 class StdOutListener(StreamListener):
     """ A listener handles tweets are the received from the stream. 
@@ -99,13 +132,14 @@ class StdOutListener(StreamListener):
                 nowlog = getNowTime()
                 ##api = tweepy.API(auth)
                 fname = pfolder +'DCIM/'+nowlog+'.jpg'
-                pid = subprocess.call(["fswebcam",fname])
+                pid = subprocess.call(["fswebcam","-r","640x480",fname])
                 api.status_update_with_media(fname,status=nowlog)
                 lcd = Adafruit_CharLCDPlate.Adafruit_CharLCDPlate(busnum = 1)
                 lcd.backlight(lcd.ON)
                 lcd.clear()
                 message = nowlog + '\n'+'Take Picture!'
-                lcd.message(message)                
+                lcd.message(message)
+                decWDT()
             except:
                 wstatus = "Error take Picture"
                 tweetStatus(wstatus)
@@ -146,7 +180,7 @@ class StdOutListener(StreamListener):
 if __name__ == '__main__':
 
 ### StartUp Procedure
-    
+    wdt = 0
     lcd = Adafruit_CharLCDPlate.Adafruit_CharLCDPlate(busnum = 1)
     lcd.clear()
     lcd.message("Aloha !\nRPiTalkingTweet")
@@ -169,7 +203,8 @@ if __name__ == '__main__':
     googlespeech.speakSpeechFromTextEN(speaktext)
     
 ### Setup Timer Event
-    timerevent.AddTask( hourlyStatusUpdate,3600,15)
+    timerevent.AddTask( hourlyStatusUpdate,3600,30)
+    timerevent.AddTask( minLCDUpdate,150,5)
     print timerevent
     timerevent.StartAllTasks()
     
