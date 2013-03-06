@@ -15,12 +15,10 @@ from Adafruit_I2C import Adafruit_I2C
 from Adafruit_MCP230xx import Adafruit_MCP230XX
 import smbus
 import Adafruit_CharLCDPlate
-
-
 import tweetkey
-
 import scheduler
 
+mid = '<OFFICE>'
 pfolder = '/home/pi/talkingtweet/'
 wstatus = 'Command Done OK'
 timerevent = scheduler.Scheduler()
@@ -31,7 +29,7 @@ def getNowTime():
     return nowlog
 
 def tweetStatus(msg):
-    wstatus = msg+' '+ getNowTime()
+    wstatus = mid+' '+ msg+' '+ getNowTime()
     try:
         api.update_status(status = wstatus)
     except:
@@ -40,6 +38,10 @@ def tweetStatus(msg):
 def hourlyStatusUpdate():
     print 'System Tweet'
     tweetStatus('take:by myself')
+
+def reboot():
+    print 'Reboot'
+    pid = subprocess.call(["sudo reboot"])
     
 class StdOutListener(StreamListener):
     """ A listener handles tweets are the received from the stream. 
@@ -99,6 +101,11 @@ class StdOutListener(StreamListener):
                 fname = pfolder +'DCIM/'+nowlog+'.jpg'
                 pid = subprocess.call(["fswebcam",fname])
                 api.status_update_with_media(fname,status=nowlog)
+                lcd = Adafruit_CharLCDPlate.Adafruit_CharLCDPlate(busnum = 1)
+                lcd.backlight(lcd.ON)
+                lcd.clear()
+                message = nowlog + '\n'+'Take Picture!'
+                lcd.message(message)                
             except:
                 wstatus = "Error take Picture"
                 tweetStatus(wstatus)
@@ -126,7 +133,11 @@ class StdOutListener(StreamListener):
             lcd.backlight(lcd.ON)
             lcd.clear()
             lcd.message("Aloha !\nRPiTalkingTweet")
- 
+
+        if tweetcommand == 'reboot:':
+            print 'Reboot'
+            pid = subprocess.call(["sudo","reboot"])
+            
         return True
 
     def on_error(self, status):
