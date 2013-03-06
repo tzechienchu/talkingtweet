@@ -57,13 +57,7 @@ def tweetStatus(msg):
         pass
 
 def minLCDUpdate():
-    nowlog = getNowTime()
-    lcd = Adafruit_CharLCDPlate.Adafruit_CharLCDPlate(busnum = 1)
-    lcd.backlight(lcd.ON)
-    lcd.clear()
-    message = nowlog + '\nRPiTalkingTweet'
-    lcd.message(message)
-    printWDT()
+    lcdShowMessage('RPiTalkingTweet',5)
     if checkWDT(3) == 1:
         reboot()      
     
@@ -75,6 +69,15 @@ def hourlyStatusUpdate():
 def reboot():
     print 'Reboot'
     pid = subprocess.call(["sudo", "reboot"])
+
+
+def lcdShowMessage(mymsg,dur):
+    nowlog = getNowTime()
+    lcd = Adafruit_CharLCDPlate.Adafruit_CharLCDPlate(busnum = 1)
+    lcd.backlight(lcd.ON)
+    lcd.clear()
+    message = nowlog + '\n' + mymsg
+    lcd.message(message)
     
 class StdOutListener(StreamListener):
     """ A listener handles tweets are the received from the stream. 
@@ -134,11 +137,7 @@ class StdOutListener(StreamListener):
                 fname = pfolder +'DCIM/'+nowlog+'.jpg'
                 pid = subprocess.call(["fswebcam","-r","640x480",fname])
                 api.status_update_with_media(fname,status=nowlog)
-                lcd = Adafruit_CharLCDPlate.Adafruit_CharLCDPlate(busnum = 1)
-                lcd.backlight(lcd.ON)
-                lcd.clear()
-                message = nowlog + '\n'+'Take Picture!'
-                lcd.message(message)
+                lcdShowMessage('Take Picture!',5)
                 decWDT()
             except:
                 wstatus = "Error take Picture"
