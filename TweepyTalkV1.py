@@ -57,9 +57,16 @@ def tweetStatus(msg):
         pass
 
 def minLCDUpdate():
+    now = time.localtime(time.time())
+    year, month, day, hour, minute, second, weekday, yearday, daylight = now
+
     lcdShowMessage('RPiTalkingTweet',5)
     if checkWDT(3) == 1:
-        reboot()      
+        reboot()
+    if ((minute % 10) == 0):
+    	print 'System Tweet'
+    	incWDT()
+    	tweetStatus('take: by myself')      
     
 def hourlyStatusUpdate():
     print 'System Tweet'
@@ -202,8 +209,8 @@ if __name__ == '__main__':
     googlespeech.speakSpeechFromTextEN(speaktext)
     
 ### Setup Timer Event
-    timerevent.AddTask( hourlyStatusUpdate,3600,30)
-    timerevent.AddTask( minLCDUpdate,150,5)
+    #timerevent.AddTask( hourlyStatusUpdate,3600,30)
+    timerevent.AddTask( minLCDUpdate,60,5)
     print timerevent
     timerevent.StartAllTasks()
     
